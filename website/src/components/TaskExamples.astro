@@ -1,0 +1,130 @@
+---
+import { readFileSync } from "node:fs";
+import Carousel from "./Carousel.astro";
+import CarouselSlide from "./CarouselSlide.astro";
+
+type Task = {
+  task: string;
+  axis: string;
+  clip: string;
+  question: string;
+  options: Record<string, string>;
+  answer_letter: string;
+};
+
+const data = JSON.parse(
+  readFileSync(`${process.cwd()}/public/tasks/tasks.json`, "utf8"),
+) as { axes: { name: string }[]; tasks: Task[] };
+
+const base = import.meta.env.BASE_URL;
+const prefix = base.endsWith("/") ? base : base + "/";
+---
+
+<div class="task-examples not-prose my-8" style="--slide-width:30rem;--slide-gap:0.85rem">
+  <div class="mx-auto flex w-fit flex-wrap items-center justify-center gap-2" role="tablist">
+    {
+      data.axes.map((axis, i) => (
+        <button
+          type="button"
+          role="tab"
+          class="tab-trigger inline-flex items-center justify-center rounded-full px-3 py-1.5 font-medium whitespace-nowrap transition-[background-color] hover:bg-zinc-300 focus-visible:outline-2 focus-visible:outline-zinc-400 data-[state=active]:bg-zinc-200 hover:data-[state=active]:bg-zinc-300 dark:hover:bg-zinc-600 dark:data-[state=active]:bg-zinc-700 dark:hover:data-[state=active]:bg-zinc-600"
+          data-state={i === 0 ? "active" : "inactive"}
+          aria-selected={i === 0 ? "true" : "false"}
+        >
+          {axis.name}
+        </button>
+      ))
+    }
+  </div>
+  {
+    data.axes.map((axis, i) => (
+      <div class="tab-panel mt-4 **:my-0" role="tabpanel" hidden={i !== 0}>
+        <Carousel>
+          {data.tasks
+            .filter((t) => t.axis === axis.name)
+            .map((t) => (
+              <CarouselSlide>
+                <div class="media group relative overflow-hidden rounded-xl">
+                  <video
+                    class="block aspect-square w-full bg-zinc-100 object-cover dark:bg-zinc-800"
+                    src={`${prefix}tasks/${t.clip}`}
+                    poster={`${prefix}tasks/${t.clip.replace(".mp4", ".jpg")}`}
+                    loop
+                    muted
+                    playsinline
+                    preload="none"
+                  />
+                  <button type="button" class="play-btn absolute inset-0 grid place-items-center" aria-label="Play clip">
+                    <span class="grid h-14 w-14 place-items-center rounded-full bg-black/45 text-white shadow-lg backdrop-blur-sm transition group-hover:bg-black/60">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
+                    </span>
+                  </button>
+                  <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/55 to-transparent px-5 pt-16 pb-5">
+                    <p class="text-[0.95rem] font-semibold text-white">{t.task}</p>
+                    <p class="mt-1 text-[0.95rem] leading-snug text-white/90">{t.question}</p>
+                    <p class="mt-1.5 text-[0.9rem] text-white/65 italic">{t.options[t.answer_letter]}</p>
+                  </div>
+                </div>
+              </CarouselSlide>
+            ))}
+        </Carousel>
+      </div>
+    ))
+  }
+</div>
+
+<style>
+  .play-btn {
+    transition: opacity 150ms ease;
+  }
+  .media.playing .play-btn {
+    opacity: 0;
+    pointer-events: none;
+  }
+</style>
+
+<script>
+  for (const root of document.querySelectorAll<HTMLElement>(".task-examples")) {
+    const triggers = Array.from(root.querySelectorAll<HTMLButtonElement>(".tab-trigger"));
+    const panels = Array.from(root.querySelectorAll<HTMLElement>(".tab-panel"));
+
+    triggers.forEach((trigger, index) => {
+      trigger.addEventListener("click", () => {
+        triggers.forEach((t, i) => {
+          t.dataset.state = i === index ? "active" : "inactive";
+          t.setAttribute("aria-selected", String(i === index));
+        });
+        panels.forEach((panel, i) => {
+          panel.hidden = i !== index;
+          if (i !== index) {
+            panel.querySelectorAll("video").forEach((video) => video.pause());
+          }
+        });
+      });
+    });
+
+    for (const media of root.querySelectorAll<HTMLElement>(".media")) {
+      const video = media.querySelector("video")!;
+      const playBtn = media.querySelector<HTMLButtonElement>(".play-btn")!;
+      let wanted = false;
+
+      const start = () => {
+        wanted = true;
+        video.preload = "auto";
+        void video.play().catch(() => {});
+      };
+      playBtn.addEventListener("click", start);
+      video.addEventListener("click", () => (video.paused ? start() : video.pause()));
+      video.addEventListener("play", () => media.classList.add("playing"));
+      video.addEventListener("pause", () => media.classList.remove("playing"));
+
+      new IntersectionObserver((entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          if (wanted) void video.play().catch(() => {});
+        } else if (!video.paused) {
+          video.pause();
+        }
+      }, { rootMargin: "200px", threshold: 0 }).observe(video);
+    }
+  }
+</script>

@@ -1,0 +1,171 @@
+{
+  "axes": [
+    {
+      "name": "Body Configuration"
+    },
+    {
+      "name": "Motion Dynamics"
+    },
+    {
+      "name": "Temporal Reasoning"
+    }
+  ],
+  "tasks": [
+    {
+      "task": "Hand Use",
+      "axis": "Body Configuration",
+      "clip": "hand_use.mp4",
+      "question": "Which hand does the person use to push the door?",
+      "options": {
+        "A": "Neither hand",
+        "B": "Right hand",
+        "C": "Left hand",
+        "D": "Both hands"
+      },
+      "answer_letter": "C"
+    },
+    {
+      "task": "Bimanual Coordination",
+      "axis": "Body Configuration",
+      "clip": "bilateral_hand_roles.mp4",
+      "question": "While the person puts straws into a cup with one hand, what is the other hand doing at that moment?",
+      "options": {
+        "A": "Reaching for another cup",
+        "B": "Holding the cup steady",
+        "C": "Holding the remaining straws",
+        "D": "Resting at their side"
+      },
+      "answer_letter": "C"
+    },
+    {
+      "task": "Body Posture",
+      "axis": "Body Configuration",
+      "clip": "body_posture.mp4",
+      "question": "What body posture is the person in at the end of the clip?",
+      "options": {
+        "A": "Crouching down",
+        "B": "Standing straight",
+        "C": "Walking",
+        "D": "Bending forward"
+      },
+      "answer_letter": "D"
+    },
+    {
+      "task": "Concurrent Body-Part State",
+      "axis": "Body Configuration",
+      "clip": "concurrent_body_state.mp4",
+      "question": "What are the person's hands doing while they step their right foot sideways?",
+      "options": {
+        "A": "Swapping the whiteboard eraser with the marker from the left hand to the right hand",
+        "B": "Writing letters on the whiteboard with the marker in the right hand, while the left hand rests at their side",
+        "C": "Erasing letters with the right hand, left hand bent forward and raised towards their chest",
+        "D": "Both hands resting at their sides"
+      },
+      "answer_letter": "B"
+    },
+    {
+      "task": "Repetition Counting",
+      "axis": "Motion Dynamics",
+      "clip": "motion_repetition_counting.mp4",
+      "question": "How many times did the person bounce the ball on the floor with their right hand?",
+      "options": {
+        "A": "5",
+        "B": "3",
+        "C": "6",
+        "D": "4"
+      },
+      "answer_letter": "D"
+    },
+    {
+      "task": "Movement Direction",
+      "axis": "Motion Dynamics",
+      "clip": "direction_turning_navigation.mp4",
+      "question": "After the person walks at the dining area, what is the sequence of their next two turns?",
+      "options": {
+        "A": "They turn clockwise, then turn clockwise",
+        "B": "They turn clockwise, then turn counterclockwise",
+        "C": "They turn counterclockwise, then turn clockwise",
+        "D": "They turn counterclockwise, then turn counterclockwise"
+      },
+      "answer_letter": "C"
+    },
+    {
+      "task": "Opposite Motion Discrimination",
+      "axis": "Motion Dynamics",
+      "clip": "opposite_motion_discrimination.mp4",
+      "question": "What is the person doing with the pen?",
+      "options": {
+        "A": "Drawing lines from left to right",
+        "B": "Drawing lines from top to bottom",
+        "C": "Drawing lines from right to left",
+        "D": "Drawing lines from bottom to top"
+      },
+      "answer_letter": "B"
+    },
+    {
+      "task": "Adjacent Action Identification",
+      "axis": "Temporal Reasoning",
+      "clip": "before_after_ordering.mp4",
+      "question": "What does the person do immediately before pulling out a bowl of vegetables?",
+      "options": {
+        "A": "Pushes the pan lid forward",
+        "B": "Grabs then releases a bag of sliced bread",
+        "C": "Lifts and puts down a pack of sausages",
+        "D": "Pulls out a tupperware"
+      },
+      "answer_letter": "B"
+    },
+    {
+      "task": "Chronological Ordering",
+      "axis": "Temporal Reasoning",
+      "clip": "motion_sequence_ordering.mp4",
+      "question": "What is the correct temporal order of these three actions: [takes the chessboard from the box / puts the board game on the table / pushes the box cover]?",
+      "options": {
+        "A": "Pushes the box cover → takes the chessboard from the box → puts the board game on the table",
+        "B": "Takes the chessboard from the box → puts the board game on the table → pushes the box cover",
+        "C": "Pushes the box cover → puts the board game on the table → takes the chessboard from the box",
+        "D": "Puts the board game on the table → pushes the box cover → takes the chessboard from the box"
+      },
+      "answer_letter": "C"
+    },
+    {
+      "task": "Missing Event Inference",
+      "axis": "Temporal Reasoning",
+      "clip": "missing_event_detection.mp4",
+      "question": "What action is missing from this sequence: places the clothing on the table → [?] → flips the clothing on the table?",
+      "options": {
+        "A": "Looks at their phone",
+        "B": "Scrubs the clothing with the tissue",
+        "C": "Retrieves a piece of clothing from the bag",
+        "D": "Folds the clothing on the table"
+      },
+      "answer_letter": "B"
+    },
+    {
+      "task": "Next Action Prediction",
+      "axis": "Temporal Reasoning",
+      "clip": "next_step_prediction.mp4",
+      "question": "Based on what the person has just done in the clip, what are they likely to do next?",
+      "options": {
+        "A": "Remove the adhesive tape from their finger",
+        "B": "Fold the party decoration back up",
+        "C": "Place the party decoration on the table",
+        "D": "Attach the party decoration onto the top of the layered shelves"
+      },
+      "answer_letter": "D"
+    },
+    {
+      "task": "Repeated Event Reasoning",
+      "axis": "Temporal Reasoning",
+      "clip": "repeated_event_reasoning.mp4",
+      "question": "The person enters the bedroom multiple times in this clip. What does the person do right after the last time they enter the bedroom?",
+      "options": {
+        "A": "Takes a few steps forward and sits on the bed to the right",
+        "B": "Puts the folded laundry on the bed to the right",
+        "C": "Puts the folded laundry on the bed to the left",
+        "D": "Stands straight, turns right, and exits the bedroom"
+      },
+      "answer_letter": "C"
+    }
+  ]
+}

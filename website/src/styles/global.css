@@ -30,6 +30,11 @@ main {
   margin-inline: var(--actual-inline-margin);
 }
 
+main p:not(.not-prose p, figcaption p, figcaption) {
+  text-align: justify;
+  hyphens: auto;
+}
+
 .full-bleed {
   margin-inline: calc(var(--actual-inline-margin) * -1);
 }

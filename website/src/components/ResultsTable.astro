@@ -1,0 +1,177 @@
+---
+import claude from "../assets/logos/claude.svg";
+import openai from "../assets/logos/openai.svg";
+import gemini from "../assets/logos/gemini.svg";
+import qwen from "../assets/logos/qwen.svg";
+import internvl from "../assets/logos/internvl.svg";
+import gemma from "../assets/logos/gemma.svg";
+import glm from "../assets/logos/glm.svg";
+import kimi from "../assets/logos/kimi.svg";
+import molmo from "../assets/logos/molmo.svg";
+import llava from "../assets/logos/llava.svg";
+import videollama from "../assets/logos/videollama.svg";
+import minicpm from "../assets/logos/minicpm.svg";
+
+type Cell = string | [string, "b" | "u"];
+type Row =
+  | { section: string }
+  | { name: string; href?: string; icon?: typeof claude; italic?: boolean; end?: boolean; cells: Cell[] };
+
+const axes = [
+  { name: "Body Configuration", tasks: ["HU", "BC", "BP", "CBS"] },
+  { name: "Motion Dynamics", tasks: ["RC", "MD", "OMD"] },
+  { name: "Temporal Reasoning", tasks: ["AAI", "CO", "MEI", "NAP", "RER"] },
+];
+const tasks = axes.flatMap((a) => a.tasks);
+const groupStarts = new Set([0, 4, 7, 12]);
+const cellClass = (i: number) => [
+  "px-2 py-1.5 text-center",
+  groupStarts.has(i) && "border-l border-zinc-200 dark:border-zinc-700",
+  i === 12 && "bg-zinc-50 font-semibold dark:bg-zinc-800/50",
+];
+
+const rows: Row[] = [
+  { name: "Human Performance", italic: true, cells: ["90.5", "78.3", "61.9", "50.3", "88.9", "66.3", "86.1", "70.1", "53.2", "72.7", "34.5", "67.4", "68.5"] },
+  { name: "Random Chance", end: true, italic: true, cells: ["25.0", "25.0", "25.0", "25.0", "25.0", "25.0", "25.0", "25.0", "25.0", "25.0", "25.0", "25.0", "25.0"] },
+  { section: "Closed-source MLLMs" },
+  { name: "Claude Sonnet 5", href: "https://www.anthropic.com/news/claude-sonnet-5", icon: claude, cells: ["52.7", "42.4", "43.5", "40.5", "36.6", "33.3", "47.9", "44.3", "33.3", "39.0", "29.9", "35.0", "40.3"] },
+  { name: "Claude Opus 4.8", href: "https://www.anthropic.com/news/claude-opus-4-8", end: true, cells: ["64.2", "45.7", "49.6", ["49.5", "u"], "36.6", "35.3", "51.4", "42.0", "37.4", "46.6", "34.1", "37.0", "44.8"] },
+  { name: "GPT-5.6 Luna", href: "https://openai.com/index/gpt-5-6/", icon: openai, cells: ["64.7", ["51.7", "u"], "40.9", "36.9", ["43.6", "b"], "40.5", "54.3", "42.0", "29.3", "39.8", "29.3", "38.0", "43.4"] },
+  { name: "GPT-5.1", href: "https://openai.com/index/gpt-5-1/", end: true, cells: ["59.7", "39.7", "37.4", "42.3", ["40.6", "u"], "31.4", "60.7", "41.2", "22.4", "40.7", "22.6", ["42.0", "b"], "40.3"] },
+  { name: "Gemini 3.5 Flash", href: "https://deepmind.google/models/model-cards/gemini-3-5-flash/", icon: gemini, cells: ["73.1", ["53.0", "b"], "46.1", "43.2", "37.6", "34.6", ["71.4", "b"], "42.7", "42.2", "34.7", "32.3", "36.0", "47.0"] },
+  { name: "Gemini 2.5 Pro", href: "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/2-5-pro", cells: ["67.7", "47.0", "34.8", "45.9", "34.7", ["46.4", "b"], "65.0", ["49.6", "b"], "37.4", ["55.1", "b"], "28.7", "39.0", "46.9"] },
+  { name: "Gemini 2.5 Flash", href: "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/2-5-flash", end: true, cells: ["43.3", "41.1", "38.3", "36.9", "36.6", "36.6", "39.3", "38.2", "27.2", "26.3", "20.1", "32.0", "34.8"] },
+  { section: "Open-source MLLMs" },
+  { name: "Qwen3.8-27B", href: "https://huggingface.co/Qwen/Qwen3.8-27B", icon: qwen, cells: ["72.1", "47.7", "46.1", "44.1", "36.6", "40.5", "58.6", "44.3", "34.7", ["48.3", "u"], "39.0", "37.0", "47.0"] },
+  { name: "Qwen3.6-27B", href: "https://huggingface.co/Qwen/Qwen3.6-27B", end: true, cells: ["72.1", ["51.7", "u"], "41.7", ["51.4", "b"], "35.6", ["43.1", "u"], "64.3", ["49.6", "b"], "46.9", "45.8", ["44.5", "b"], "35.0", ["50.0", "b"]] },
+  { name: "Qwen3.5-0.8B", href: "https://huggingface.co/Qwen/Qwen3.5-0.8B", icon: qwen, cells: ["40.3", "39.1", "25.2", "35.1", "24.8", "28.1", "33.6", "29.8", "32.7", "26.3", "31.7", "24.0", "31.7"] },
+  { name: "Qwen3.5-2B", href: "https://huggingface.co/Qwen/Qwen3.5-2B", cells: ["48.3", "38.4", "27.0", "35.1", "23.8", "26.1", "44.3", "29.0", "33.3", "18.6", "25.6", "32.0", "32.7"] },
+  { name: "Qwen3.5-4B", href: "https://huggingface.co/Qwen/Qwen3.5-4B", cells: [["74.6", "b"], "42.4", "34.8", "40.5", "39.6", "32.0", "51.4", "45.0", "38.8", "46.6", "25.0", "32.0", "43.1"] },
+  { name: "Qwen3.5-9B", href: "https://huggingface.co/Qwen/Qwen3.5-9B", cells: ["70.1", "48.3", "41.7", "43.2", "20.8", "39.2", "61.4", "38.2", "40.1", "34.7", "35.4", "38.0", "44.3"] },
+  { name: "Qwen3.5-27B", href: "https://huggingface.co/Qwen/Qwen3.5-27B", end: true, cells: [["73.6", "u"], "47.0", "44.3", "47.7", "31.7", "42.5", ["67.9", "u"], ["45.8", "u"], ["49.7", "b"], "45.8", "39.0", ["42.0", "b"], ["49.5", "u"]] },
+  { name: "Qwen3-VL-2B", href: "https://huggingface.co/Qwen/Qwen3-VL-2B-Instruct", icon: qwen, cells: ["33.8", "33.8", "33.0", "34.2", "34.7", "33.3", "32.1", "32.8", "26.5", "27.1", "19.5", "36.0", "31.1"] },
+  { name: "Qwen3-VL-4B", href: "https://huggingface.co/Qwen/Qwen3-VL-4B-Instruct", cells: ["46.8", "29.1", "33.9", "32.4", "28.7", "32.0", "52.9", "34.4", "32.0", "22.9", "22.6", "36.0", "34.1"] },
+  { name: "Qwen3-VL-8B", href: "https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct", cells: ["56.2", "33.1", "32.2", "28.8", "32.7", "32.7", "57.9", "38.2", "26.5", "39.0", "19.5", ["42.0", "b"], "37.1"] },
+  { name: "Qwen3-VL-32B", href: "https://huggingface.co/Qwen/Qwen3-VL-32B-Instruct", end: true, cells: ["70.1", "41.7", "35.7", "40.5", "36.6", "34.6", "67.1", "43.5", "37.4", "44.9", "25.6", ["40.0", "u"], "44.2"] },
+  { name: "InternVL3.5-1B", href: "https://huggingface.co/OpenGVLab/InternVL3_5-1B", icon: internvl, cells: ["33.3", "25.8", "36.5", "32.4", ["40.6", "u"], "30.7", "28.6", "27.5", "30.6", "22.9", "32.9", "31.0", "30.9"] },
+  { name: "InternVL3.5-2B", href: "https://huggingface.co/OpenGVLab/InternVL3_5-2B", cells: ["33.3", "31.8", "45.2", "34.2", "36.6", "33.3", "35.0", "35.9", "29.9", "25.4", "28.0", "36.0", "33.4"] },
+  { name: "InternVL3.5-4B", href: "https://huggingface.co/OpenGVLab/InternVL3_5-4B", cells: ["47.8", "26.5", "40.9", "28.8", "33.7", "31.4", "44.3", "32.8", "23.1", "28.0", "23.2", "31.0", "33.0"] },
+  { name: "InternVL3.5-8B", href: "https://huggingface.co/OpenGVLab/InternVL3_5-8B", cells: ["35.8", "31.1", "41.7", "37.8", "31.7", "32.0", "46.4", "34.4", "17.7", "37.3", "29.3", "27.0", "33.4"] },
+  { name: "InternVL3.5-14B", href: "https://huggingface.co/OpenGVLab/InternVL3_5-14B", cells: ["50.2", "37.1", "43.5", "39.6", "37.6", "28.8", "55.0", "38.9", "25.9", "42.4", "23.2", "36.0", "38.2"] },
+  { name: "InternVL3.5-38B", href: "https://huggingface.co/OpenGVLab/InternVL3_5-38B", end: true, cells: ["52.2", "44.4", "37.4", "32.4", "36.6", "30.1", "59.3", "42.0", "29.9", "45.8", "17.7", "38.0", "39.0"] },
+  { name: "Gemma-4-12B", href: "https://huggingface.co/google/gemma-4-12B-it", icon: gemma, cells: ["45.3", "41.7", "36.5", "46.8", "32.7", "22.9", "30.7", "28.2", ["47.6", "u"], "22.0", "30.5", "26.0", "34.8"] },
+  { name: "Gemma-4-31B", href: "https://huggingface.co/google/gemma-4-31B-it", end: true, cells: ["67.2", "41.1", "39.1", "46.8", "37.6", "34.6", "50.7", "38.2", "38.8", "30.5", ["40.2", "u"], "38.0", "43.1"] },
+  { name: "GLM-4.6V-Flash", href: "https://huggingface.co/zai-org/GLM-4.6V-Flash", icon: glm, cells: ["53.2", "41.1", "32.2", "39.6", "23.8", "34.0", "43.6", "33.6", "36.1", "26.3", "20.7", "28.0", "35.4"] },
+  { name: "GLM-4.6V", href: "https://huggingface.co/zai-org/GLM-4.6V", end: true, cells: ["54.7", "36.4", "36.5", "36.9", "35.6", "34.6", "57.1", "42.0", "40.8", "26.3", "20.7", "37.0", "38.8"] },
+  { name: "Kimi-VL-A3B", href: "https://huggingface.co/moonshotai/Kimi-VL-A3B-Instruct", icon: kimi, end: true, cells: ["38.8", "30.5", "33.9", "34.2", "32.7", "34.6", "45.0", "35.1", "25.2", "24.6", "23.2", "30.0", "32.5"] },
+  { name: "MiniCPM-o-4.5-9B", href: "https://huggingface.co/openbmb/MiniCPM-o-4_5", icon: minicpm, end: true, cells: ["55.2", "35.8", "40.9", "46.8", "32.7", "29.4", "42.9", "35.1", "30.6", "26.3", "23.2", "30.0", "36.3"] },
+  { name: "Molmo2-4B", href: "https://huggingface.co/allenai/Molmo2-4B", icon: molmo, cells: ["56.7", "37.1", ["53.0", "b"], "45.9", "33.7", "29.4", "41.4", "32.8", "19.0", "28.0", "26.2", "35.0", "36.8"] },
+  { name: "Molmo2-8B", href: "https://huggingface.co/allenai/Molmo2-8B", end: true, cells: ["54.2", "42.4", ["51.3", "u"], "41.4", "33.7", "36.6", "39.3", "39.7", "38.1", "37.3", "36.0", "29.0", "40.6"] },
+  { name: "LLaVA-OneVision-1.5-8B", href: "https://huggingface.co/lmms-lab/LLaVA-OneVision-1.5-8B-Instruct", icon: llava, end: true, cells: ["44.3", "32.5", "34.8", "28.8", "27.7", "28.1", "35.7", "26.7", "30.6", "27.1", "21.3", "29.0", "31.1"] },
+  { name: "VideoLLaMA3-7B", href: "https://huggingface.co/DAMO-NLP-SG/VideoLLaMA3-7B", icon: videollama, end: true, cells: ["36.8", "35.1", "40.9", "35.1", "38.6", "34.6", "32.1", "30.5", "23.1", "24.6", "25.0", "33.0", "32.3"] },
+  { section: "Egocentric MLLMs" },
+  { name: "EgoGPT-7B", href: "https://huggingface.co/lmms-lab/EgoGPT-7b-EgoIT-EgoLife", cells: ["46.3", "27.2", "33.0", "27.9", "31.7", "32.0", "40.7", "26.7", "16.3", "20.3", "29.9", "30.0", "30.8"] },
+  { name: "EgoVLM-3B", href: "https://huggingface.co/adityavavre/EgoVLM", cells: ["40.3", "27.2", "27.0", "19.8", "29.7", "35.3", "46.4", "32.8", "39.5", "34.7", "24.4", "38.0", "33.3"] },
+  { name: "EgoThinker-7B", href: "https://huggingface.co/hyf015/EgoThinker-v1", cells: ["56.7", "33.1", "35.7", "30.6", "30.7", "37.3", "50.0", "29.0", "26.5", "33.1", "26.8", "27.0", "35.8"] },
+];
+---
+
+<div class="mx-[calc(max(var(--minimum-inline-margin),(100cqw-100rem)/2)-var(--actual-inline-margin))]">
+<figure class="table mx-auto my-6 max-w-full min-w-[min(calc(var(--actual-text-width)+8rem),100%)]">
+  <div class="overflow-x-auto">
+    <table class="not-prose w-full min-w-max border-collapse text-[0.95rem] leading-snug text-zinc-800 tabular-nums dark:text-zinc-200">
+      <thead>
+        <tr>
+          <th rowspan="2" class="px-3 py-1.5 text-left align-bottom font-semibold">Model</th>
+          {
+            axes.map((axis) => (
+              <th
+                colspan={axis.tasks.length}
+                class="border-l border-zinc-200 px-2 pt-1 pb-1.5 text-center text-[0.85rem] font-semibold text-zinc-700 dark:border-zinc-700 dark:text-zinc-300"
+              >
+                {axis.name}
+              </th>
+            ))
+          }
+          <th rowspan="2" class="border-l border-zinc-200 bg-zinc-50 px-2 py-1.5 text-center align-bottom font-semibold dark:border-zinc-700 dark:bg-zinc-800/50">Avg.</th>
+        </tr>
+        <tr class="border-b border-zinc-400 dark:border-zinc-500">
+          {tasks.map((t, i) => <th class:list={[cellClass(i), "text-[0.8rem] font-semibold text-zinc-500 dark:text-zinc-400"]}>{t}</th>)}
+        </tr>
+      </thead>
+      <tbody>
+        {
+          rows.map((row) =>
+            "section" in row ? (
+              <tr class="border-y border-zinc-300 bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800">
+                <td colspan={tasks.length + 2} class="px-3 py-1.5 text-center text-[0.95rem] font-semibold text-zinc-600 italic dark:text-zinc-300">
+                  {row.section}
+                </td>
+              </tr>
+            ) : (
+              <tr
+                class:list={[
+                  "border-b",
+                  row.end ? "border-zinc-300 dark:border-zinc-600" : "border-zinc-100 dark:border-zinc-800",
+                  row.italic && "text-zinc-500 italic dark:text-zinc-400",
+                ]}
+              >
+                <td class="px-3 py-1.5 text-left whitespace-nowrap">
+                  {row.italic ? (
+                    row.name
+                  ) : (
+                    <span class="flex items-center gap-2">
+                      <span class="flex size-4 shrink-0 items-center justify-center">
+                        {row.icon && <row.icon width={16} height={16} aria-hidden="true" />}
+                      </span>
+                      {row.href ? (
+                        <a
+                          href={row.href}
+                          class="text-blue-600 underline decoration-dashed underline-offset-4 hover:text-blue-900 hover:decoration-solid dark:text-blue-200 dark:hover:text-blue-100"
+                        >
+                          {row.name}
+                        </a>
+                      ) : (
+                        row.name
+                      )}
+                    </span>
+                  )}
+                </td>
+                {row.cells.map((c, i) =>
+                  typeof c === "string" ? (
+                    <td class:list={cellClass(i)}>{c}</td>
+                  ) : c[1] === "b" ? (
+                    <td class:list={cellClass(i)}><strong class="font-bold text-zinc-950 dark:text-white">{c[0]}</strong></td>
+                  ) : (
+                    <td class:list={cellClass(i)}><u class="underline-offset-2">{c[0]}</u></td>
+                  ),
+                )}
+              </tr>
+            ),
+          )
+        }
+      </tbody>
+    </table>
+  </div>
+  <figcaption class="table-caption caption-bottom pt-3 text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+    <slot />
+  </figcaption>
+</figure>
+</div>
+
+<style>
+  tbody tr {
+    transition: background-color 120ms ease;
+  }
+  tbody tr:hover {
+    background-color: rgb(0 0 0 / 0.04);
+  }
+  :global([data-theme="dark"]) tbody tr:hover {
+    background-color: rgb(255 255 255 / 0.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme="light"])) tbody tr:hover {
+      background-color: rgb(255 255 255 / 0.06);
+    }
+  }
+</style>

@@ -1,0 +1,27 @@
+<div class="slide-viewport snap-center px-[calc(var(--slide-gap)/2)]">
+  <div class="slide w-[min(var(--slide-width,var(--actual-text-width)),var(--actual-text-width))] **:my-0">
+    <slot />
+  </div>
+</div>
+
+<style>
+  .slide {
+    opacity: 0.35;
+    filter: saturate(0.6);
+    transition:
+      opacity 300ms ease,
+      filter 300ms ease;
+  }
+
+  .slide-viewport.is-current .slide,
+  .slide-viewport:only-child .slide {
+    opacity: 1;
+    filter: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .slide {
+      transition: none;
+    }
+  }
+</style>

@@ -1,6 +1,7 @@
 import { defineConfig, fontProviders } from "astro/config";
 import tailwindcss from "@tailwindcss/vite";
 import icon from "astro-icon";
+import astroExpressiveCode from "astro-expressive-code";
 
 export default defineConfig({
   site: "https://cnai.epfl.ch",
@@ -8,7 +9,7 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
-  integrations: [icon()],
+  integrations: [icon(), astroExpressiveCode()],
   fonts: [
     {
       provider: fontProviders.google(),
@@ -17,7 +18,4 @@ export default defineConfig({
       weights: ["100 900"],
     },
   ],
-  image: {
-    responsiveStyles: true,
-  },
 });

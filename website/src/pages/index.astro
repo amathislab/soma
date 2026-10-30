@@ -2,6 +2,14 @@
 import { Font } from "astro:assets";
 
 import Header from "../components/Header.astro";
+import HighlightedSection from "../components/HighlightedSection.astro";
+import Carousel from "../components/Carousel.astro";
+import CarouselSlide from "../components/CarouselSlide.astro";
+import PosePanel from "../components/PosePanel.astro";
+import TaskExamples from "../components/TaskExamples.astro";
+import ResultsTable from "../components/ResultsTable.astro";
+import TableOfContents from "../components/TableOfContents.astro";
+import { Code } from "astro-expressive-code/components";
 import epflLogo from "../assets/epfl-logo.svg";
 
 import "../styles/global.css";
@@ -12,6 +20,25 @@ const description =
   "A video-language benchmark for fine-grained body-motion understanding in egocentric video.";
 
 const theme: "device" | "light" | "dark" = "device";
+
+const sections = [
+  { slug: "abstract", text: "Abstract" },
+  { slug: "overview", text: "Overview" },
+  { slug: "task-suite", text: "Task Suite" },
+  { slug: "results", text: "Results" },
+  { slug: "getting-started", text: "Getting Started" },
+  { slug: "bibtex-citation", text: "BibTeX citation" },
+];
+
+const bibtex = `@misc{tashkovska2026soma,
+      title={{SOMA}: A Benchmark for Fine-Grained Egocentric Behavior and Body-Motion Understanding},
+      author={Matea Tashkovska and Naël Ouerghemi and Haozhe Qi and Alexander Mathis},
+      year={2026},
+      eprint={2610.36384},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2610.36384},
+}`;
 
 const baseUrl = import.meta.env.BASE_URL;
 const prefix = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
@@ -40,9 +67,11 @@ const prefix = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
     <title>{title}</title>
   </head>
   <body
-    class="prose prose-lg prose-zinc dark:prose-invert prose-a:text-blue-600 prose-a:hover:text-blue-900 prose-a:dark:text-blue-200 prose-a:dark:hover:text-blue-100 prose-a:underline prose-a:decoration-dashed prose-a:underline-offset-4 prose-a:hover:decoration-solid prose-a:font-normal flex min-h-svh max-w-none flex-col pb-6 font-(family-name:--font-noto-sans)"
+    class="prose prose-lg prose-zinc dark:prose-invert prose-a:text-blue-600 prose-a:hover:text-blue-900 prose-a:dark:text-blue-200 prose-a:dark:hover:text-blue-100 prose-a:underline prose-a:decoration-dashed prose-a:underline-offset-4 prose-a:hover:decoration-solid prose-a:font-normal max-w-none pt-16 pb-6 font-(family-name:--font-noto-sans)"
   >
-    <main class="flex flex-1 flex-col justify-center py-16 [&>header]:mb-0">
+    <TableOfContents headings={sections} />
+
+    <main>
       <Header
         title='SOMA: A Benchmark for <span style="white-space:nowrap">Fine-Grained</span> Egocentric Behavior and <span style="white-space:nowrap">Body-Motion</span> Understanding'
         authors={[
@@ -52,9 +81,9 @@ const prefix = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
           { name: "Alexander Mathis", url: "https://people.epfl.ch/alexander.mathis" },
         ]}
         links={[
-          { name: "Paper (arXiv)", url: "#", icon: "academicons:arxiv" },
+          { name: "Paper (arXiv)", url: "https://arxiv.org/abs/2610.36384", icon: "academicons:arxiv" },
           { name: "Project repository", url: "https://github.com/amathislab/soma", icon: "ri:github-line" },
-          { name: "Dataset", url: "https://huggingface.co/datasets/amathislab/SOMA", icon: "ri:database-2-line" },
+          { name: "Benchmark", url: "https://huggingface.co/datasets/amathislab/SOMA", icon: "ri:database-2-line" },
         ]}
       >
         <div class="not-prose mb-4 flex flex-col items-center gap-3">
@@ -68,19 +97,73 @@ const prefix = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
             <img src={epflLogo.src} alt="EPFL" class="h-6 w-auto" />
           </a>
         </div>
-
-        <div slot="after-links" class="not-prose mt-4 flex justify-center">
-          <span
-            class="rounded-full border-2 border-zinc-800 px-5 py-2 text-lg text-zinc-800 dark:border-zinc-200 dark:text-zinc-200"
-          >
-            Coming soon
-          </span>
-        </div>
       </Header>
+
+      <HighlightedSection>
+        <h2 id="abstract">Abstract</h2>
+        <p>
+          Perceiving human body motion is critical for multimodal systems that understand and assist people. Yet current evaluations of Multimodal Large Language Models (MLLMs) largely focus on objects, scenes, and coarse actions, leaving their ability to reason about the body itself poorly assessed. This is especially challenging from the egocentric perspective, in which the body is only partially visible and motion must be inferred from occluded and temporally distributed cues.
+        </p>
+        <p>
+          We introduce <strong>SOMA</strong>, a benchmark for fine-grained body-motion understanding from egocentric video, comprising 1,632 human-verified questions across three capability axes: body configuration, motion dynamics, and temporal reasoning. We evaluate 37 leading closed-source, open-source, and specialized egocentric MLLMs, complemented by an extensive human evaluation. We find that humans also find this task difficult from video alone (68.5% accuracy), yet clearly outperform the strongest MLLM (Qwen3.6-27B), which reaches 50.0% zero-shot accuracy. Our error analysis shows that MLLMs often misread the wearer's own body, misjudge events in time, and are prone to biases such as favoring the right hand or under-counting repetitions. To narrow the gap to human performance and support further progress, we introduce a training dataset of aligned video, body motion, and language supervision, and a multimodal baseline that jointly learns from these modalities. By identifying common failure modes and missing capabilities in current MLLMs, we hope SOMA will inspire future research on body-motion understanding and multimodal reasoning.
+        </p>
+      </HighlightedSection>
+
+      <h2 id="overview">Overview</h2>
+
+      <Carousel>
+        <CarouselSlide>
+          <PosePanel name="ex1" />
+        </CarouselSlide>
+        <CarouselSlide>
+          <PosePanel name="ex2" />
+        </CarouselSlide>
+        <CarouselSlide>
+          <PosePanel name="ex3" />
+        </CarouselSlide>
+        <CarouselSlide>
+          <PosePanel name="ex4" />
+        </CarouselSlide>
+      </Carousel>
+
+      <p>
+        SOMA builds on motion-aligned egocentric video from <a href="https://www.projectaria.com/datasets/nymeria/">Nymeria</a> and <a href="https://ego-exo4d-data.org/">Ego-Exo4D</a>, two large-scale datasets that provide rich annotations of human activity and motion. The benchmark contains 1,632 human-verified questions over 1,611 video clips, focusing specifically on the motion and behavior of the camera wearer, with questions grounded in body motion rather than solely in visible objects or scene context.
+      </p>
+
+      <h2 id="task-suite">Task Suite</h2>
+
+      <p>
+        SOMA organizes 12 tasks around three complementary axes of egocentric body-motion understanding. <strong>Body Configuration</strong> probes perception of the body and its parts during an activity. <strong>Motion Dynamics</strong> tests perception of fine-grained motion. <strong>Temporal Reasoning</strong> requires reasoning about how motion-grounded events unfold over time, including their relationships and progression.
+      </p>
+
+      <TaskExamples />
+
+      <h2 id="results">Results</h2>
+
+      <ResultsTable>
+        <strong>Comparison results on SOMA.</strong> Accuracy (%) across the three capability axes and their twelve tasks. HU: Hand Use; BC: Bimanual Coordination; BP: Body Posture; CBS: Concurrent Body-Part State; RC: Repetition Counting; MD: Movement Direction; OMD: Opposite Motion Discrimination; AAI: Adjacent Action Identification; CO: Chronological Ordering; MEI: Missing Event Inference; NAP: Next Action Prediction; RER: Repeated Event Reasoning. The best model results are marked in <strong>bold</strong>, and the second-best are <u>underlined</u>. Human performance is the mean over five annotators.
+      </ResultsTable>
+
+      <h2 id="getting-started">Getting Started</h2>
+
+      <div class="my-6 border-l-4 border-zinc-200 pl-6 dark:border-zinc-700 [&>:first-child]:mt-0 [&>:last-child]:mb-0">
+        <ol>
+          <li>
+            <strong>Download the benchmark:</strong> The benchmark questions will be available through the <a href="https://huggingface.co/datasets/amathislab/SOMA">Hugging Face repository</a> upon acceptance.
+          </li>
+          <li>
+            <strong>Documentation and evaluation:</strong> Instructions for accessing the Nymeria and Ego-Exo4D source videos and running the evaluation will be provided in the <a href="https://github.com/amathislab/soma">GitHub repository</a>.
+          </li>
+        </ol>
+      </div>
+
+      <h2 id="bibtex-citation">BibTeX citation</h2>
+
+      <Code code={bibtex} lang="bibtex" />
     </main>
 
     <footer
-      class="-mb-6 bg-zinc-50 py-4 text-center dark:bg-zinc-800/50"
+      class="mt-16 -mb-6 bg-zinc-50 py-4 text-center dark:bg-zinc-800/50"
     >
       <p class="prose-sm mx-auto max-w-[50rem] px-6 text-center text-zinc-500 dark:text-zinc-400">
         This website was adapted from <a

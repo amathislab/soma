@@ -1,7 +1,7 @@
 # SOMA project page
 
 This folder holds the source for the SOMA project page, served at
-<https://cnai.epfl.ch/soma/>. 
+<https://cnai.epfl.ch/soma/>.
 
 The page is built with [Astro](https://astro.build/) and adapted from the
 [academic project page template](https://github.com/RomanHauksson/academic-project-astro-template).

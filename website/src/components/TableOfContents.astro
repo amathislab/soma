@@ -1,0 +1,141 @@
+---
+interface Props {
+  headings: { slug: string; text: string }[];
+}
+
+const { headings: items } = Astro.props;
+---
+
+{
+  items.length > 0 && (
+    <nav
+      id="toc"
+      aria-label="Sections"
+      class="group not-prose fixed top-1/2 left-2 z-40 hidden -translate-y-1/2 xl:block"
+    >
+      <div class="rounded-lg p-2.5 ring-0 ring-zinc-200 transition-all duration-200 group-hover:bg-white/95 group-hover:shadow-xl group-hover:ring-1 group-hover:backdrop-blur dark:ring-zinc-700 dark:group-hover:bg-zinc-900/95">
+        <ul class="flex flex-col gap-0">
+          {items.map((h) => (
+            <li>
+              <a
+                href={`#${h.slug}`}
+                data-toc-link={h.slug}
+                class="toc-link flex items-center rounded-md py-[3px] pl-2 no-underline transition-all duration-200 group-hover:py-1 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              >
+                <span class="toc-bar mr-2 h-[2px] w-5 shrink-0 rounded-full bg-zinc-300 transition-all duration-200 group-hover:mr-0 group-hover:w-0 group-hover:opacity-0 dark:bg-zinc-600" />
+                <span class="toc-label max-w-0 overflow-hidden text-base whitespace-nowrap text-zinc-400 opacity-0 transition-all duration-200 group-hover:max-w-[14rem] group-hover:pr-2.5 group-hover:opacity-100 dark:text-zinc-500">
+                  {h.text}
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </nav>
+  )
+}
+
+<style is:global>
+  @reference "../styles/global.css";
+
+  main h2 {
+    scroll-margin-top: 4rem;
+  }
+
+  #toc {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 300ms ease;
+  }
+
+  #toc.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #toc {
+      transition: none;
+    }
+  }
+
+  .toc-link.is-active .toc-bar {
+    @apply bg-zinc-800 dark:bg-zinc-200;
+  }
+
+  .toc-link.is-active .toc-label {
+    @apply font-semibold text-zinc-900 dark:text-zinc-100;
+  }
+</style>
+
+<script>
+  const nav = document.getElementById("toc");
+  if (nav) {
+    const tocNav = nav;
+    const links = Array.from(
+      nav.querySelectorAll<HTMLAnchorElement>("a[data-toc-link]"),
+    );
+    const targets = links
+      .map((link) => ({
+        link,
+        heading: document.getElementById(link.dataset.tocLink ?? ""),
+      }))
+      .filter((t): t is { link: HTMLAnchorElement; heading: HTMLElement } =>
+        Boolean(t.heading),
+      );
+
+    const OFFSET = 120;
+
+    function setActive() {
+      let active = targets[0];
+      for (const target of targets) {
+        if (target.heading.getBoundingClientRect().top <= OFFSET) {
+          active = target;
+        }
+      }
+      if (
+        window.innerHeight + window.scrollY >=
+        document.body.scrollHeight - 2
+      ) {
+        active = targets[targets.length - 1];
+      }
+      for (const target of targets) {
+        target.link.classList.toggle("is-active", target === active);
+      }
+
+      const reveal = targets[1] ?? targets[0];
+      tocNav.classList.toggle(
+        "is-visible",
+        reveal.heading.getBoundingClientRect().top <= OFFSET,
+      );
+    }
+
+    let queued = false;
+    function onScroll() {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => {
+        queued = false;
+        setActive();
+      });
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    setActive();
+
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    for (const { link, heading } of targets) {
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        heading.scrollIntoView({
+          behavior: reduceMotion ? "auto" : "smooth",
+          block: "start",
+        });
+        history.replaceState(null, "", `#${heading.id}`);
+      });
+    }
+  }
+</script>

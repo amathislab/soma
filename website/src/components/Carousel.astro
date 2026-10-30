@@ -1,0 +1,250 @@
+---
+import { Icon } from "astro-icon/components";
+import { parseHTML } from "linkedom";
+
+const html = await Astro.slots.render("default");
+const { document } = parseHTML(html);
+const children = Array.from(document.children);
+const slides = children.filter((child) =>
+  child.classList.contains("slide-viewport"),
+);
+const numSlides = slides.length;
+
+slides.forEach((child, index) => {
+  child.setAttribute("data-index", String(index));
+});
+
+const slidesHtml = children.map((child) => child.outerHTML).join("");
+---
+
+<div class="carousel-wrapper">
+  <div class="not-prose my-4 flex items-center justify-center">
+    <button
+      class="navigation-button prev-button h-[3rem] w-[3rem] cursor-pointer content-center disabled:cursor-not-allowed disabled:opacity-50 active:[&>svg]:scale-none!"
+      type="button"
+      ><Icon
+        class="mx-auto h-[2rem] w-[2rem] dark:text-zinc-200"
+        name="ri:arrow-drop-left-line"
+      /></button
+    >
+    <div class="flex">
+      {
+        Array.from({ length: numSlides }).map(() => (
+          <button
+            class="page-button h-[3rem] w-[3rem] cursor-pointer content-center active:[&>div]:scale-none!"
+            type="button"
+          >
+            <div class="mx-auto h-[0.5rem] w-[0.5rem] rounded-full bg-black transition dark:bg-zinc-200" />
+          </button>
+        ))
+      }
+    </div>
+    <button
+      class="navigation-button next-button h-[3rem] w-[3rem] cursor-pointer content-center disabled:cursor-not-allowed disabled:opacity-50 active:[&>svg]:scale-none!"
+      type="button"
+      ><Icon
+        class="mx-auto h-[2rem] w-[2rem] transition dark:text-zinc-200"
+        name="ri:arrow-drop-right-line"
+      /></button
+    >
+  </div>
+  <div
+    class="carousel-viewport mx-[calc(var(--slide-gap)/-2)] w-[calc(var(--actual-text-width)+var(--slide-gap))]"
+  >
+    <div
+      class="carousel flex snap-x snap-mandatory [scrollbar-width:none] overflow-scroll"
+    >
+      <Fragment set:html={slidesHtml} />
+    </div>
+  </div>
+</div>
+
+<script>
+  const carousels = document.querySelectorAll(
+    "div.carousel-wrapper",
+  ) as NodeListOf<HTMLDivElement>;
+
+  carousels.forEach((wrapper) => {
+    const carouselViewport = wrapper.querySelector(
+      "div.carousel-viewport",
+    ) as HTMLDivElement;
+    const slides = wrapper.querySelectorAll(
+      "div.slide",
+    ) as NodeListOf<HTMLDivElement>;
+    const slideViewports = wrapper.querySelectorAll(
+      "div.slide-viewport",
+    ) as NodeListOf<HTMLDivElement>;
+    const prevButton = wrapper.querySelector(
+      "button.prev-button",
+    ) as HTMLButtonElement;
+    const nextButton = wrapper.querySelector(
+      "button.next-button",
+    ) as HTMLButtonElement;
+    const paginationButtons = wrapper.querySelectorAll(
+      "button.page-button",
+    ) as NodeListOf<HTMLButtonElement>;
+
+    if (
+      !carouselViewport ||
+      !prevButton ||
+      !nextButton ||
+      slides.length === 0
+    ) {
+      return;
+    }
+
+    let currentIndex = 0;
+
+    function updateButtonStates() {
+      prevButton.disabled = currentIndex === 0;
+      nextButton.disabled = currentIndex === slides.length - 1;
+      paginationButtons.forEach((item, index) => {
+        item.classList.toggle("active", index === currentIndex);
+      });
+      slideViewports.forEach((item, index) => {
+        const current = index === currentIndex;
+        item.classList.toggle("is-current", current);
+        item.querySelectorAll("video[autoplay]").forEach((node) => {
+          const video = node as HTMLVideoElement;
+          if (current) {
+            void video.play().catch(() => {});
+          } else {
+            video.pause();
+          }
+        });
+      });
+    }
+
+    function goToSlide(index: number) {
+      if (index < 0 || index >= slides.length) {
+        return;
+      }
+
+      slideViewports[index].scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "center",
+      });
+      updateButtonStates();
+    }
+
+    prevButton.addEventListener("click", () => {
+      goToSlide(currentIndex - 1);
+    });
+
+    nextButton.addEventListener("click", () => {
+      goToSlide(currentIndex + 1);
+    });
+
+    paginationButtons.forEach((item, index) => {
+      item.addEventListener("click", () => {
+        goToSlide(index);
+      });
+    });
+
+    updateButtonStates();
+
+    if (slideViewports.length === 0) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visibleEntries = entries.filter((entry) => entry.isIntersecting);
+        if (visibleEntries.length === 0) {
+          return;
+        }
+
+        const mostVisible = visibleEntries.reduce((prev, current) =>
+          current.intersectionRatio > prev.intersectionRatio ? current : prev,
+        );
+
+        const target = mostVisible.target as HTMLElement;
+        const nextIndex = Number(target.dataset.index ?? "-1");
+        if (Number.isNaN(nextIndex) || nextIndex === currentIndex) {
+          return;
+        }
+
+        currentIndex = nextIndex;
+        updateButtonStates();
+      },
+      {
+        root: carouselViewport,
+        threshold: 0.5,
+      },
+    );
+
+    slideViewports.forEach((slideViewport) => observer.observe(slideViewport));
+  });
+</script>
+
+<style>
+  @reference "../styles/global.css";
+  :root {
+    --slide-gap: 1rem;
+    --carousel-max-overhang: 9rem;
+  }
+
+  .carousel {
+    --carousel-overhang: min(
+      var(--actual-inline-margin),
+      var(--carousel-max-overhang)
+    );
+    --slide-inset: max(
+      0px,
+      calc(
+        (var(--actual-text-width) - var(--slide-width, var(--actual-text-width))) / 2
+      )
+    );
+    margin-inline: calc(var(--carousel-overhang) * -1);
+    padding-inline: calc(var(--carousel-overhang) + var(--slide-inset));
+    scroll-padding-inline: calc(var(--carousel-overhang) + var(--slide-inset));
+
+    -webkit-mask-image: var(--carousel-fade);
+    mask-image: var(--carousel-fade);
+    --carousel-fade-lead: 2rem;
+    --carousel-fade-length: calc(
+      var(--carousel-overhang) + var(--carousel-fade-lead)
+    );
+    --carousel-fade: linear-gradient(
+      to right,
+      rgb(0 0 0 / 0) 0,
+      rgb(0 0 0 / 0.06) calc(var(--carousel-fade-length) * 0.15),
+      rgb(0 0 0 / 0.22) calc(var(--carousel-fade-length) * 0.3),
+      rgb(0 0 0 / 0.43) calc(var(--carousel-fade-length) * 0.45),
+      rgb(0 0 0 / 0.65) calc(var(--carousel-fade-length) * 0.6),
+      rgb(0 0 0 / 0.84) calc(var(--carousel-fade-length) * 0.75),
+      rgb(0 0 0 / 0.97) calc(var(--carousel-fade-length) * 0.9),
+      rgb(0 0 0 / 1) var(--carousel-fade-length),
+      rgb(0 0 0 / 1) calc(100% - var(--carousel-fade-length)),
+      rgb(0 0 0 / 0.97) calc(100% - var(--carousel-fade-length) * 0.9),
+      rgb(0 0 0 / 0.84) calc(100% - var(--carousel-fade-length) * 0.75),
+      rgb(0 0 0 / 0.65) calc(100% - var(--carousel-fade-length) * 0.6),
+      rgb(0 0 0 / 0.43) calc(100% - var(--carousel-fade-length) * 0.45),
+      rgb(0 0 0 / 0.22) calc(100% - var(--carousel-fade-length) * 0.3),
+      rgb(0 0 0 / 0.06) calc(100% - var(--carousel-fade-length) * 0.15),
+      rgb(0 0 0 / 0) 100%
+    );
+  }
+
+  @media (hover: none) and (pointer: coarse) {
+    .navigation-button {
+      display: none;
+    }
+  }
+
+  .page-button.active > div {
+    @apply scale-[1.4] bg-orange-600 dark:bg-orange-300;
+  }
+
+  .page-button:active > div {
+    @apply scale-100;
+  }
+
+  @media (hover: hover) {
+    .page-button:hover > div,
+    .navigation-button:hover:not(:disabled) > svg {
+      @apply scale-[1.4];
+    }
+  }
+</style>
